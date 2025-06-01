@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart'; // إضافة هذا لاستخدام GoogleFonts
-import 'distributionSelectionScreen.dart';
+import  'distribution_provider_dashboard_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -42,7 +42,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
       // <== هنا نحدد الشاشة التي ستعمل عند تشغيل التطبيق
-      home: DistributionSelectionScreen(), // <== ستفتح هذه الصفحة مباشرةً
+      home: DistributionProviderDashboardScreen(), // <== ستفتح هذه الصفحة مباشرةً
       // يمكنكِ تغيير 'زفاف' إلى أي نوع مناسبة آخر (مثل 'عيد ميلاد', 'مواليد')
       // لاختبار العروض المختلفة التي تظهر حسب نوع المناسبة.
     );
