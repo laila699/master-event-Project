@@ -1,3 +1,10 @@
+/*<<<<<<< HEAD
+// lib/main.dart
+import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:google_fonts/google_fonts.dart'; // إضافة هذا لاستخدام GoogleFonts
+import  'distribution_provider_dashboard_screen.dart';
+=======
 import 'package:flutter/material.dart';
 import 'InvitationScreen.dart';
 import 'user_profile.dart';
@@ -7,6 +14,7 @@ import 'furniture.dart';
 import 'EventSettingsPage.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
+>>>>>>> ce18a1e5c4e67faafdeb28ce68629697a93abc73
 
 void main() {
   runApp(const MyApp());
@@ -18,17 +26,51 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+<<<<<<< HEAD
+      debugShowCheckedModeBanner: false,
+      locale: const Locale('ar'),
+      supportedLocales: const [
+        Locale('ar'),
+        Locale('en'),
+      ],
+=======
       title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
         fontFamily: 'Cairo',
       ),
+>>>>>>> ce18a1e5c4e67faafdeb28ce68629697a93abc73
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
+<<<<<<< HEAD
+      builder: (context, child) {
+        return Directionality(
+          textDirection: TextDirection.rtl, // تم تعديلها لـ RTL لمناسبتها للعربية
+          child: child!,
+        );
+      },
+      theme: ThemeData(
+        fontFamily: GoogleFonts.cairo().fontFamily,
+        primarySwatch: Colors.deepPurple,
+        scaffoldBackgroundColor: const Color(0xFFF7F7F7),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.deepPurple,
+          titleTextStyle: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+          centerTitle: true,
+        ),
+      ),
+      // <== هنا نحدد الشاشة التي ستعمل عند تشغيل التطبيق
+      home: DistributionProviderDashboardScreen(), // <== ستفتح هذه الصفحة مباشرةً
+      // يمكنكِ تغيير 'زفاف' إلى أي نوع مناسبة آخر (مثل 'عيد ميلاد', 'مواليد')
+      // لاختبار العروض المختلفة التي تظهر حسب نوع المناسبة.
+    );
+  }
+}
+=======
       supportedLocales: const [Locale('ar', ''), Locale('en', '')],
       locale: const Locale('ar', ''),
 
@@ -306,4 +348,4 @@ class ServiceCard extends StatelessWidget {
   }
 }
 
-
+*/
