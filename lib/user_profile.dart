@@ -3,6 +3,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart'; // for WidgetsBinding
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:masterevent/screens/auth/login_screen.dart';
@@ -10,7 +11,7 @@ import 'package:masterevent/screens/auth/login_screen.dart';
 import '../providers/auth_provider.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
-  const ProfileScreen({super.key});
+  const ProfileScreen({Key? key}) : super(key: key);
 
   @override
   ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
@@ -18,21 +19,17 @@ class ProfileScreen extends ConsumerStatefulWidget {
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   final _formKey = GlobalKey<FormState>();
-
-  // Controllers for editable fields
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   late TextEditingController _phoneController;
 
   File? _pickedImage;
   final _picker = ImagePicker();
-
   bool _isSaving = false;
 
   @override
   void initState() {
     super.initState();
-    // We’ll initialize controllers in build() once authState is available
     _nameController = TextEditingController();
     _emailController = TextEditingController();
     _phoneController = TextEditingController();
@@ -52,12 +49,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         source: ImageSource.gallery,
         imageQuality: 75,
       );
-      if (picked != null) {
-        setState(() {
-          _pickedImage = File(picked.path);
-        });
+      if (picked != null && mounted) {
+        setState(() => _pickedImage = File(picked.path));
       }
-    } catch (e) {
+    } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('حدث خطأ أثناء اختيار الصورة')),
@@ -72,12 +67,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         source: ImageSource.camera,
         imageQuality: 75,
       );
-      if (picked != null) {
-        setState(() {
-          _pickedImage = File(picked.path);
-        });
+      if (picked != null && mounted) {
+        setState(() => _pickedImage = File(picked.path));
       }
-    } catch (e) {
+    } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('حدث خطأ أثناء التقاط الصورة')),
@@ -89,30 +82,29 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   void _showImageSourceDialog() {
     showModalBottomSheet(
       context: context,
-      builder: (_) {
-        return SafeArea(
-          child: Wrap(
-            children: [
-              ListTile(
-                leading: const Icon(Icons.photo_library),
-                title: const Text('اختيار من المعرض'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _pickFromGallery();
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.photo_camera),
-                title: const Text('التقاط صورة'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _takePhoto();
-                },
-              ),
-            ],
+      builder:
+          (_) => SafeArea(
+            child: Wrap(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.photo_library),
+                  title: const Text('اختيار من المعرض'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _pickFromGallery();
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.photo_camera),
+                  title: const Text('التقاط صورة'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _takePhoto();
+                  },
+                ),
+              ],
+            ),
           ),
-        );
-      },
     );
   }
 
@@ -133,38 +125,41 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             phone: phone,
             profileImage: _pickedImage,
           );
-      // If successful, authState.user is updated.
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('تم تحديث الملف الشخصي بنجاح')),
         );
       }
-    } catch (e) {
-      // Errors from updateProfile are caught in AuthNotifier and reflected in authState.status == AuthStatus.error
+    } catch (_) {
+      // errors surfaced via authState
     } finally {
-      if (mounted) {
-        setState(() => _isSaving = false);
-      }
+      if (mounted) setState(() => _isSaving = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authNotifierProvider);
+    final user = authState.user;
 
-    // If not authenticated, redirect to login
-    if (authState.status != AuthStatus.authenticated) {
-      Future.microtask(() {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const LoginScreen()),
-        );
-      });
+    // listen here, not in initState
+    ref.listen<AuthState>(authNotifierProvider, (previous, next) {
+      if (previous?.status != AuthStatus.unauthenticated &&
+          next.status == AuthStatus.unauthenticated) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const LoginScreen()),
+          );
+        });
+      }
+    });
+
+    // initial load or while updating profile?
+    if (user == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    final user = authState.user!;
-
-    // Pre‐fill controllers if not already
+    // one-time controller fill
     if (_nameController.text.isEmpty) {
       _nameController.text = user.name;
     }
@@ -175,9 +170,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       _phoneController.text = user.phone;
     }
 
-    // If there’s an error status from AuthNotifier, show a SnackBar
+    // show errors
     if (authState.status == AuthStatus.error && authState.message != null) {
-      // Use a microtask so that snackBar only shows once per build
       Future.microtask(() {
         ScaffoldMessenger.of(
           context,
@@ -194,12 +188,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           foregroundColor: Colors.white,
         ),
         body: SingleChildScrollView(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.all(20),
           child: Form(
             key: _formKey,
             child: Column(
               children: [
-                // ── Avatar ─────────────────────────────────────────────
+                // Avatar
                 Center(
                   child: Stack(
                     alignment: Alignment.bottomRight,
@@ -207,14 +201,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       CircleAvatar(
                         radius: 60,
                         backgroundColor: Colors.grey.shade300,
-                        // Priority: Show newly picked image > existing avatarUrl from user > initial letter
                         backgroundImage:
                             _pickedImage != null
                                 ? FileImage(_pickedImage!)
                                 : (user.avatarUrl != null
-                                    ? NetworkImage(user.avatarUrl!)
-                                        as ImageProvider
-                                    : null),
+                                        ? NetworkImage(user.avatarUrl!)
+                                        : null)
+                                    as ImageProvider<Object>?,
                         child:
                             (_pickedImage == null && user.avatarUrl == null)
                                 ? Text(
@@ -237,7 +230,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             onTap: _showImageSourceDialog,
                             customBorder: const CircleBorder(),
                             child: const Padding(
-                              padding: EdgeInsets.all(8.0),
+                              padding: EdgeInsets.all(8),
                               child: Icon(
                                 Icons.camera_alt,
                                 color: Colors.white,
@@ -253,7 +246,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
                 const SizedBox(height: 24),
 
-                // ── Name Field ────────────────────────────────────────
+                // Name
                 TextFormField(
                   controller: _nameController,
                   decoration: const InputDecoration(
@@ -261,16 +254,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     prefixIcon: Icon(Icons.person_outline),
                     border: OutlineInputBorder(),
                   ),
-                  validator: (val) {
-                    if (val == null || val.trim().isEmpty) {
-                      return 'الرجاء إدخال الاسم الكامل';
-                    }
-                    return null;
-                  },
+                  validator:
+                      (val) =>
+                          val == null || val.trim().isEmpty
+                              ? 'الرجاء إدخال الاسم الكامل'
+                              : null,
                 ),
                 const SizedBox(height: 16),
 
-                // ── Email Field ───────────────────────────────────────
+                // Email
                 TextFormField(
                   controller: _emailController,
                   decoration: const InputDecoration(
@@ -284,15 +276,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       return 'الرجاء إدخال البريد الإلكتروني';
                     }
                     final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
-                    if (!emailRegex.hasMatch(val.trim())) {
-                      return 'صيغة البريد الإلكتروني غير صحيحة';
-                    }
-                    return null;
+                    return emailRegex.hasMatch(val.trim())
+                        ? null
+                        : 'صيغة البريد الإلكتروني غير صحيحة';
                   },
                 ),
                 const SizedBox(height: 16),
 
-                // ── Phone Field ───────────────────────────────────────
+                // Phone
                 TextFormField(
                   controller: _phoneController,
                   decoration: const InputDecoration(
@@ -305,15 +296,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     if (val == null || val.trim().isEmpty) {
                       return 'الرجاء إدخال رقم الهاتف';
                     }
-                    if (val.trim().length < 9) {
-                      return 'رقم الهاتف قصير جدًا';
-                    }
-                    return null;
+                    return val.trim().length >= 9
+                        ? null
+                        : 'رقم الهاتف قصير جدًا';
                   },
                 ),
                 const SizedBox(height: 30),
 
-                // ── Save Button ───────────────────────────────────────
+                // Save
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
@@ -339,7 +329,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
                 const SizedBox(height: 20),
 
-                // ── Logout Button ─────────────────────────────────────
+                // Logout
                 ListTile(
                   leading: const Icon(Icons.logout, color: Colors.red),
                   title: const Text(

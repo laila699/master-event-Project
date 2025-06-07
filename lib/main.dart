@@ -1,8 +1,8 @@
 // lib/main.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'services/token_storage.dart';
 import 'services/dio_client.dart';
@@ -41,7 +41,7 @@ class MyApp extends ConsumerWidget {
         useMaterial3: true,
         fontFamily: 'Cairo',
       ),
-      localizationsDelegates: const [
+      localizationsDelegates: [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
