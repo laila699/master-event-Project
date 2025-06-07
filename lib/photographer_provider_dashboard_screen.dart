@@ -1,8 +1,7 @@
 // lib/photographer_provider_dashboard_screen.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:event/manage_photographer_screen.dart'; 
-
+import 'package:masterevent/manage_photographer_screen.dart';
 
 final List<Map<String, dynamic>> myPhotographers = [
   {
@@ -81,145 +80,180 @@ class _PhotographerProviderDashboardScreenState
         title: Text(
           'لوحة تحكم المصورين',
           style: GoogleFonts.cairo(
-              fontWeight: FontWeight.bold, color: Colors.white),
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
         backgroundColor: Colors.deepPurple,
         centerTitle: true,
       ),
       backgroundColor: const Color(0xFFF7F7F7),
-      body: myPhotographers.isEmpty // عرض رسالة إذا لم يكن هناك مصورون
-          ? Center(
-              child: Text(
-                'لم يتم إضافة أي مصور بعد. اضغط على الزر "+" لإضافة مصورك الأول.',
-                style: GoogleFonts.cairo(fontSize: 16, color: Colors.grey[700]),
-                textAlign: TextAlign.center,
-              ),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.all(16.0),
-              itemCount: myPhotographers.length,
-              itemBuilder: (context, index) {
-                final photographer = myPhotographers[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 15),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15)),
-                  elevation: 4,
-                  child: InkWell(
-                    onTap: () async {
-                      // عند الضغط على المصور، ننتقل لصفحة الإدارة للتعديل
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ManagePhotographerScreen(
-                            photographer:
-                                photographer, // نرسل بيانات المصور الحالي
+      body:
+          myPhotographers
+                  .isEmpty // عرض رسالة إذا لم يكن هناك مصورون
+              ? Center(
+                child: Text(
+                  'لم يتم إضافة أي مصور بعد. اضغط على الزر "+" لإضافة مصورك الأول.',
+                  style: GoogleFonts.cairo(
+                    fontSize: 16,
+                    color: Colors.grey[700],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              )
+              : ListView.builder(
+                padding: const EdgeInsets.all(16.0),
+                itemCount: myPhotographers.length,
+                itemBuilder: (context, index) {
+                  final photographer = myPhotographers[index];
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    elevation: 4,
+                    child: InkWell(
+                      onTap: () async {
+                        // عند الضغط على المصور، ننتقل لصفحة الإدارة للتعديل
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) => ManagePhotographerScreen(
+                                  photographer:
+                                      photographer, // نرسل بيانات المصور الحالي
+                                ),
                           ),
-                        ),
-                      );
-                      // بعد العودة من صفحة الإدارة (سواء تم تعديل أو حذف)، نقوم بتحديث القائمة
-                      _refreshPhotographers();
-                    },
-                    borderRadius: BorderRadius.circular(15),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Image.asset(
-                              photographer['portfolioImages'][0], // عرض أول صورة من البورتفوليو
-                              width: 100,
-                              height: 100,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  width: 100,
-                                  height: 100,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[200],
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: const Icon(Icons.broken_image_outlined,
-                                      size: 40, color: Colors.grey),
-                                );
-                              },
+                        );
+                        // بعد العودة من صفحة الإدارة (سواء تم تعديل أو حذف)، نقوم بتحديث القائمة
+                        _refreshPhotographers();
+                      },
+                      borderRadius: BorderRadius.circular(15),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Image.asset(
+                                photographer['portfolioImages'][0], // عرض أول صورة من البورتفوليو
+                                width: 100,
+                                height: 100,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    width: 100,
+                                    height: 100,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[200],
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: const Icon(
+                                      Icons.broken_image_outlined,
+                                      size: 40,
+                                      color: Colors.grey,
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 15),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  photographer['name'],
-                                  style: GoogleFonts.cairo(
+                            const SizedBox(width: 15),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    photographer['name'],
+                                    style: GoogleFonts.cairo(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.deepPurple),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 5),
-                                Row(
-                                  children: [
-                                    Icon(Icons.star_rounded,
-                                        color: Colors.amber, size: 20),
-                                    Text(
-                                      '${photographer['rating']}',
-                                      style: GoogleFonts.cairo(
-                                          fontSize: 15, color: Colors.grey[700]),
+                                      color: Colors.deepPurple,
                                     ),
-                                    const SizedBox(width: 10),
-                                    Icon(Icons.location_on,
-                                        color: Colors.grey[600], size: 20),
-                                    Expanded(
-                                      child: Text(
-                                        photographer['city'],
-                                        style: GoogleFonts.cairo(
-                                            fontSize: 15, color: Colors.grey[700]),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.star_rounded,
+                                        color: Colors.amber,
+                                        size: 20,
                                       ),
+                                      Text(
+                                        '${photographer['rating']}',
+                                        style: GoogleFonts.cairo(
+                                          fontSize: 15,
+                                          color: Colors.grey[700],
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Icon(
+                                        Icons.location_on,
+                                        color: Colors.grey[600],
+                                        size: 20,
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          photographer['city'],
+                                          style: GoogleFonts.cairo(
+                                            fontSize: 15,
+                                            color: Colors.grey[700],
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Text(
+                                    '📞 ${photographer['phone']}',
+                                    style: GoogleFonts.cairo(
+                                      fontSize: 15,
+                                      color: Colors.blue,
                                     ),
-                                  ],
-                                ),
-                                const SizedBox(height: 5),
-                                Text(
-                                  '📞 ${photographer['phone']}',
-                                  style: GoogleFonts.cairo(
-                                      fontSize: 15, color: Colors.blue),
-                                ),
-                                const SizedBox(height: 5),
-                                Wrap(
-                                  spacing: 6.0,
-                                  runSpacing: 4.0,
-                                  children: (photographer['photographyTypes']
-                                          as List<String>)
-                                      .map((type) => Chip(
-                                            label: Text(type,
-                                                style: GoogleFonts.cairo(
-                                                    fontSize: 11)),
-                                            backgroundColor:
-                                                Colors.blue.shade50,
-                                            labelStyle: GoogleFonts.cairo(
-                                                color: Colors.blue.shade700),
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 6, vertical: 0),
-                                          ))
-                                      .toList(),
-                                ),
-                              ],
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Wrap(
+                                    spacing: 6.0,
+                                    runSpacing: 4.0,
+                                    children:
+                                        (photographer['photographyTypes']
+                                                as List<String>)
+                                            .map(
+                                              (type) => Chip(
+                                                label: Text(
+                                                  type,
+                                                  style: GoogleFonts.cairo(
+                                                    fontSize: 11,
+                                                  ),
+                                                ),
+                                                backgroundColor:
+                                                    Colors.blue.shade50,
+                                                labelStyle: GoogleFonts.cairo(
+                                                  color: Colors.blue.shade700,
+                                                ),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 6,
+                                                      vertical: 0,
+                                                    ),
+                                              ),
+                                            )
+                                            .toList(),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                );
-              },
-            ),
+                  );
+                },
+              ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           // عند الضغط على زر الإضافة، ننتقل لصفحة الإدارة بدون بيانات (لإضافة جديد)

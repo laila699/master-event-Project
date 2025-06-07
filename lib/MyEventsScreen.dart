@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../services/api_service.dart';  
+import '../services/api_service.dart';
 
 class MyEventsScreen extends StatefulWidget {
   final String userId;
@@ -23,7 +23,7 @@ class _MyEventsScreenState extends State<MyEventsScreen> {
 
   Future<List<dynamic>> fetchEvents(String userId) async {
     final response = await http.get(
-      Uri.parse('http://localhost:3000/events?user_id=$userId'),
+      Uri.parse('http://localhost:5000/events?user_id=$userId'),
     );
 
     if (response.statusCode == 200) {

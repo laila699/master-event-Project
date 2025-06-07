@@ -1,7 +1,6 @@
 // lib/restaurant_provider_dashboard_screen.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:event/manage_restaurant_screen.dart'; // سنقوم بإنشاء هذا الملف قريباً
 import 'manage_restaurant_screen.dart';
 
 // **ملاحظة:** في التطبيق الحقيقي، هذه القائمة ستأتي من الـ Backend
@@ -17,7 +16,11 @@ final List<Map<String, dynamic>> myRestaurants = [
     'city': 'نابلس',
     'customerReviews': [
       {'name': 'أحمد', 'rating': 5, 'comment': 'طعام ممتاز وخدمة رائعة!'},
-      {'name': 'ليلى', 'rating': 4, 'comment': 'الجو جميل لكن الأسعار مرتفعة قليلاً.'},
+      {
+        'name': 'ليلى',
+        'rating': 4,
+        'comment': 'الجو جميل لكن الأسعار مرتفعة قليلاً.',
+      },
     ],
   },
   {
@@ -84,125 +87,151 @@ class _RestaurantProviderDashboardScreenState
         title: Text(
           'لوحة تحكم المطاعم',
           style: GoogleFonts.cairo(
-              fontWeight: FontWeight.bold, color: Colors.white),
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
         backgroundColor: Colors.deepPurple,
         centerTitle: true,
       ),
       backgroundColor: const Color(0xFFF7F7F7),
-      body: myRestaurants.isEmpty // عرض رسالة إذا لم يكن هناك مطاعم
-          ? Center(
-              child: Text(
-                'لم يتم إضافة أي مطعم بعد. اضغط على الزر "+" لإضافة مطعمك الأول.',
-                style: GoogleFonts.cairo(fontSize: 16, color: Colors.grey[700]),
-                textAlign: TextAlign.center,
-              ),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.all(16.0),
-              itemCount: myRestaurants.length,
-              itemBuilder: (context, index) {
-                final restaurant = myRestaurants[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 15),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15)),
-                  elevation: 4,
-                  child: InkWell(
-                    onTap: () async {
-                      // عند الضغط على المطعم، ننتقل لصفحة الإدارة للتعديل
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ManageRestaurantScreen(
-                            restaurant: restaurant, // نرسل بيانات المطعم الحالي
+      body:
+          myRestaurants
+                  .isEmpty // عرض رسالة إذا لم يكن هناك مطاعم
+              ? Center(
+                child: Text(
+                  'لم يتم إضافة أي مطعم بعد. اضغط على الزر "+" لإضافة مطعمك الأول.',
+                  style: GoogleFonts.cairo(
+                    fontSize: 16,
+                    color: Colors.grey[700],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              )
+              : ListView.builder(
+                padding: const EdgeInsets.all(16.0),
+                itemCount: myRestaurants.length,
+                itemBuilder: (context, index) {
+                  final restaurant = myRestaurants[index];
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    elevation: 4,
+                    child: InkWell(
+                      onTap: () async {
+                        // عند الضغط على المطعم، ننتقل لصفحة الإدارة للتعديل
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) => ManageRestaurantScreen(
+                                  restaurant:
+                                      restaurant, // نرسل بيانات المطعم الحالي
+                                ),
                           ),
-                        ),
-                      );
-                      // بعد العودة من صفحة الإدارة (سواء تم تعديل أو حذف)، نقوم بتحديث القائمة
-                      _refreshRestaurants();
-                    },
-                    borderRadius: BorderRadius.circular(15),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Image.asset(
-                              restaurant['image'],
-                              width: 100,
-                              height: 100,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  width: 100,
-                                  height: 100,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[200],
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: const Icon(Icons.broken_image_outlined,
-                                      size: 40, color: Colors.grey),
-                                );
-                              },
+                        );
+                        // بعد العودة من صفحة الإدارة (سواء تم تعديل أو حذف)، نقوم بتحديث القائمة
+                        _refreshRestaurants();
+                      },
+                      borderRadius: BorderRadius.circular(15),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Image.asset(
+                                restaurant['image'],
+                                width: 100,
+                                height: 100,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    width: 100,
+                                    height: 100,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[200],
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: const Icon(
+                                      Icons.broken_image_outlined,
+                                      size: 40,
+                                      color: Colors.grey,
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 15),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  restaurant['name'],
-                                  style: GoogleFonts.cairo(
+                            const SizedBox(width: 15),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    restaurant['name'],
+                                    style: GoogleFonts.cairo(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.deepPurple),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 5),
-                                Row(
-                                  children: [
-                                    Icon(Icons.star_rounded,
-                                        color: Colors.amber, size: 20),
-                                    Text(
-                                      '${restaurant['rating']}',
-                                      style: GoogleFonts.cairo(
-                                          fontSize: 15, color: Colors.grey[700]),
+                                      color: Colors.deepPurple,
                                     ),
-                                    const SizedBox(width: 10),
-                                    Icon(Icons.location_on,
-                                        color: Colors.grey[600], size: 20),
-                                    Expanded(
-                                      child: Text(
-                                        restaurant['location'],
-                                        style: GoogleFonts.cairo(
-                                            fontSize: 15, color: Colors.grey[700]),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.star_rounded,
+                                        color: Colors.amber,
+                                        size: 20,
                                       ),
+                                      Text(
+                                        '${restaurant['rating']}',
+                                        style: GoogleFonts.cairo(
+                                          fontSize: 15,
+                                          color: Colors.grey[700],
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Icon(
+                                        Icons.location_on,
+                                        color: Colors.grey[600],
+                                        size: 20,
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          restaurant['location'],
+                                          style: GoogleFonts.cairo(
+                                            fontSize: 15,
+                                            color: Colors.grey[700],
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Text(
+                                    '📞 ${restaurant['phone']}',
+                                    style: GoogleFonts.cairo(
+                                      fontSize: 15,
+                                      color: Colors.blue,
                                     ),
-                                  ],
-                                ),
-                                const SizedBox(height: 5),
-                                Text(
-                                  '📞 ${restaurant['phone']}',
-                                  style: GoogleFonts.cairo(
-                                      fontSize: 15, color: Colors.blue),
-                                ),
-                              ],
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                );
-              },
-            ),
+                  );
+                },
+              ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           // عند الضغط على زر الإضافة، ننتقل لصفحة الإدارة بدون بيانات (لإضافة جديد)
